@@ -5,7 +5,14 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from './firebaseConfig';
 import Navbar from './components/NavBar';
 import WelcomePage from './components/WelcomePage';
+import ImageGeneration from './components/ImageGeneration';
+import SignIn from './components/SignIn';
+import Register from './components/Register';
+import Gallery from'./components/Gallery';
+import Prompt from './components/PromptGen';
 
+
+ 
 
 // import EditImage from './components/EditImage';
 
@@ -30,7 +37,11 @@ function App() {
       <Navbar user={user} handleSignOut={handleSignOut} />
       <Routes>
         <Route path="/" element={<WelcomePage />} />
-       
+        <Route path="/register" element={<Register />} />
+        <Route path="/gellery" element={<Gallery />} />
+        <Route path="/prompt" element={<Prompt />} />
+ <Route path="/generate-image" element={<ImageGeneration />} />
+        <Route path="/signin" element={<SignIn />} /> 
       
 
         {/* <Route path="/edit-image" element={<EditImage />} /> */}
