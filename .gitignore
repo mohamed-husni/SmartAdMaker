@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules/
+server/node_modules/
+
 /.pnp/
 .pnp.js
 
@@ -13,6 +15,8 @@
 
 #firebase
 /firebaseConfig/
+server/serviceAccountKey.json
+
 # misc
 .env
 .DS_Store

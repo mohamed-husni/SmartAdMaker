@@ -1,133 +1,178 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Buffer } from 'buffer';
-import { doc, collection, setDoc } from 'firebase/firestore'; 
-import { db, auth } from '../firebaseConfig'; 
+import React, { useState } from "react";
+import { InferenceClient } from "@huggingface/inference";
+import { doc, collection, setDoc } from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
+
+const client = new InferenceClient(process.env.REACT_APP_HF_TOKEN);
 
 function ImageGeneration() {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [saveSuccess, setSaveSuccess] = useState(false); 
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const generateImage = async () => {
     setLoading(true);
     setError(null);
-    setSaveSuccess(false); // Reset saveSuccess when a new image is generated
-    const API_URL = "https://api-inference.huggingface.co/models/mohamedhusni/Advertisement_poster_LORA_part3";
-    const HF_TOKEN = "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";
-    const headers = {
-      Authorization: `Bearer ${HF_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Accept': 'image/png'
-    };
-
+    setSaveSuccess(false);
     try {
-      const response = await axios.post(
-        API_URL,
-        { inputs: prompt },
-        { headers, responseType: 'arraybuffer' }
-      );
+      const result = await client.textToImage({
+        model: "mohamedhusni/Advertisement_poster_LORA_part3",
+        inputs: prompt,
+        parameters: { num_inference_steps: 20 },
+      });
 
-      const base64Image = Buffer.from(response.data, 'binary').toString('base64');
-      const imageUrl = `data:image/png;base64,${base64Image}`;
-      setImageUrl(imageUrl);
-    } catch (error) {
+      const blob = new Blob([result], { type: "image/png" });
+      const url = URL.createObjectURL(blob);
+      setImageUrl(url);
+    } catch (err) {
+      console.error("Error generating image:", err);
       setError("Error generating image. Please try again.");
-      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Function to save image to Firebase Firestore
   const saveImageToGallery = async () => {
-    const user = auth.currentUser;  // Get current logged-in user
+    const user = auth.currentUser;
     if (!user) {
       setError("You must be logged in to save images.");
       return;
     }
-
     try {
-      const imageDocRef = doc(collection(db, 'users', user.uid, 'images')); // Each user has their own collection
+      const imageDocRef = doc(collection(db, "users", user.uid, "images"));
       await setDoc(imageDocRef, {
-        imageUrl,  // Base64 image data
-        prompt,    // The prompt used to generate the image
-        createdAt: new Date().toISOString() // Timestamp
+        imageUrl,
+        prompt,
+        createdAt: new Date().toISOString(),
       });
-
-      setSaveSuccess(true); // Set success flag
-      console.log("Image successfully saved to Firestore!");
+      setSaveSuccess(true);
       alert("Image saved successfully to your gallery!");
-      setImageUrl("");  
-      setPrompt(""); 
-      
-    } catch (error) {
+      setImageUrl("");
+      setPrompt("");
+    } catch (err) {
+      console.error("Error saving image:", err);
       setError("Error saving image to Firestore.");
-      console.error("Error saving image:", error);
     }
   };
 
-  // Function to handle image deletion
   const deleteImage = () => {
-    setImageUrl("");  // Reset the image URL to empty
-    setPrompt("");    // Optionally reset the prompt to allow new input
-    setSaveSuccess(false); // Reset save status
+    setImageUrl("");
+    setPrompt("");
+    setSaveSuccess(false);
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto border rounded-lg">
-      <h2 className="text-2xl text-center font-semibold mb-4">Enter Your text and Generate an 
-        Advertisement poster
-      </h2>
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Enter a prompt"
-        className="border p-2 w-full h-32 mb-4" // Increase height of text area
-      />
-      {/* Generate Button */}
-      <button
-        onClick={generateImage}
-        className="bg-blue-500 p-2 rounded w-full mb-4"
-        disabled={loading || imageUrl}
-      >
-        {loading ? "Generating..." : "Generate Image"}
-      </button>
-      {/* Display error message if there's an error */}
-      {error && <p className="text-red-500">{error}</p>}
-      {/* Show the image, download, and delete options if an image is generated */}
-      {imageUrl && (
-        <div>
-          <img src={imageUrl} alt="Generated" className="mt-4 w-full h-auto" /> {/* Make image larger */}
-          {/* Download Button */}
-          <a
-            href={imageUrl}
-            download="generated_image.png"
-            className=" text-black p-2 rounded mt-4 inline-block hover:bg-green-700"
-          >
-            Download Image
-          </a>
-          {/* Save to Firebase Button */}
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white flex items-center justify-center p-6">
+      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl p-8 flex flex-col md:flex-row gap-6">
+        {/* Left side: Text and inputs */}
+        <div className="md:w-1/2 flex flex-col">
+          <h2 className="text-4xl font-bold text-orange-500 mb-6 text-center md:text-left">
+            Advertisement Poster Generator
+          </h2>
+          <p className="text-gray-600 mb-4 text-center md:text-left">
+            Enter your creative idea and instantly generate stunning advertisement posters.
+          </p>
+
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Type your advertisement prompt here..."
+            className="w-full h-40 p-4 mb-4 border-2 border-gray-300 rounded-xl focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition-all resize-none"
+          />
+
           <button
-            onClick={saveImageToGallery}
-            className=" text-black p-2 rounded ml-4 hover:bg-purple-700"
-            disabled={saveSuccess} 
-            // Disable if already saved
+            onClick={generateImage}
+            className={`w-full py-3 rounded-xl font-semibold text-white shadow-lg transition transform hover:scale-105 mb-4 ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+              }`}
+            disabled={loading}
           >
-            
-            {saveSuccess ? "Saved" : "Save to Gallery"}
+            {loading ? "Generating..." : "Generate Poster"}
           </button>
-          {/* Delete/Cancel Button */}
-          <button
-            onClick={deleteImage}
-            className=" text-red p-2 rounded ml-4 hover:bg-red-700"
-          >
-            Delete Image
-          </button>
+
+          {error && <p className="text-red-500 text-center mb-2">{error}</p>}
         </div>
-      )}
+
+        {/* Right side: Generated image */}
+        <div className="md:w-1/2 flex flex-col items-center justify-start">
+          {imageUrl ? (
+            <div className="w-full flex flex-col items-center">
+              <img
+                src={imageUrl}
+                alt="Generated Poster"
+                className="w-full max-w-md h-auto rounded-xl shadow-xl mb-4 object-cover"
+              />
+
+              <div className="flex flex-wrap justify-center gap-4 mt-4">
+                {/* Download Button */}
+                <a
+                  href={imageUrl}
+                  download="advertisement_poster.png"
+                  className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v8m0 0l-4-4m4 4l4-4M12 4v8" />
+                  </svg>
+                  Download
+                </a>
+
+                {/* Save Button */}
+                <button
+                  onClick={saveImageToGallery}
+                  disabled={saveSuccess}
+                  className={`flex items-center gap-2 px-5 py-3 font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105 ${saveSuccess
+                      ? "bg-gray-400 cursor-not-allowed text-white"
+                      : "bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white"
+                    }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {saveSuccess ? "Saved" : "Save"}
+                </button>
+
+                {/* Delete Button */}
+                <button
+                  onClick={deleteImage}
+                  className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Delete
+                </button>
+              </div>
+
+            </div>
+          ) : (
+            <div className="text-gray-400 italic mt-8 text-center">
+              Your generated poster will appear here.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
