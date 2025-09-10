@@ -1,52 +1,59 @@
-// import express from "express";
-// import cors from "cors";
-// import multer from "multer";
-// import { initializeApp, cert } from "firebase-admin/app";
-// import { getStorage } from "firebase-admin/storage";
-// import { v4 as uuidv4 } from "uuid";
-// import fs from "fs";
+import express from "express";
+import cors from "cors";
+import multer from "multer";
+import admin from "firebase-admin";
+import dotenv from "dotenv";
 
-// // Load Firebase Admin credentials
-// const serviceAccount = JSON.parse(
-//   fs.readFileSync("../serviceAccountKey.json", "utf8")
-// );
+dotenv.config();
 
-// initializeApp({
-//   credential: cert(serviceAccount),
-//   storageBucket: "ai-app-7f653.appspot.com",
-// });
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: "10mb" })); // allow base64 image uploads
 
-// const app = express();
-// const upload = multer({ storage: multer.memoryStorage() });
-// const bucket = getStorage().bucket();
+// Multer config (in-memory storage)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// app.use(cors());
-// app.use(express.json());
+// Initialize Firebase Admin using env vars
+admin.initializeApp({
+  credential: admin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    privateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    clientId: process.env.FIREBASE_CLIENT_ID,
+  }),
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+});
 
-// // Upload route
-// app.post("/upload", upload.single("image"), async (req, res) => {
-//   try {
-//     if (!req.file) return res.status(400).send("No image provided");
+const bucket = admin.storage().bucket();
 
-//     const fileName = `users/${req.body.uid}/${Date.now()}-${uuidv4()}.png`;
-//     const file = bucket.file(fileName);
+// Test route
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
 
-//     await file.save(req.file.buffer, {
-//       metadata: { contentType: req.file.mimetype },
-//     });
+// Upload route
+app.post("/upload", upload.none(), async (req, res) => {
+  try {
+    const { imageBase64, userId, prompt } = req.body;
+    if (!imageBase64) return res.status(400).json({ error: "No image data" });
 
-//     // Get public download URL
-//     const [url] = await file.getSignedUrl({
-//       action: "read",
-//       expires: "03-01-2030",
-//     });
+    const buffer = Buffer.from(imageBase64, "base64");
+    const fileName = `${userId}/${Date.now()}.png`;
+    const file = bucket.file(fileName);
 
-//     res.json({ downloadURL: url, fileName });
-//   } catch (error) {
-//     console.error("Error uploading file:", error);
-//     res.status(500).send("Upload failed");
-//   }
-// });
+    await file.save(buffer, { contentType: "image/png" });
+    await file.makePublic(); // ❗ for testing only, later use signed URLs
 
-// const PORT = 5000;
-// app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    res.json({ url: publicUrl, prompt });
+  } catch (err) {
+    console.error("Upload failed:", err);
+    res.status(500).json({ error: "Upload failed" });
+  }
+});
+
+app.listen(5000, () => {
+  console.log("Server running at http://localhost:5000");
+});

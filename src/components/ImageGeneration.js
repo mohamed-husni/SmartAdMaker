@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { InferenceClient } from "@huggingface/inference";
-import { doc, collection, setDoc } from "firebase/firestore";
-import { db, auth } from "../firebaseConfig";
+import { auth } from "../firebaseConfig";
+import { Toaster, toast } from "react-hot-toast";
 
 const client = new InferenceClient(process.env.REACT_APP_HF_TOKEN);
 
@@ -9,12 +9,16 @@ function ImageGeneration() {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Generate image
   const generateImage = async () => {
+    if (!prompt.trim()) {
+      toast.error("Please enter a prompt first.");
+      return;
+    }
+
     setLoading(true);
-    setError(null);
     setSaveSuccess(false);
     try {
       const result = await client.textToImage({
@@ -26,152 +30,134 @@ function ImageGeneration() {
       const blob = new Blob([result], { type: "image/png" });
       const url = URL.createObjectURL(blob);
       setImageUrl(url);
+      toast.success("Poster generated successfully!");
     } catch (err) {
       console.error("Error generating image:", err);
-      setError("Error generating image. Please try again.");
+      toast.error("Failed to generate poster. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const saveImageToGallery = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      setError("You must be logged in to save images.");
+  // Save image
+  const handleSave = async () => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+      toast.error("Please log in first.");
       return;
     }
-    try {
-      const imageDocRef = doc(collection(db, "users", user.uid, "images"));
-      await setDoc(imageDocRef, {
-        imageUrl,
-        prompt,
-        createdAt: new Date().toISOString(),
-      });
-      setSaveSuccess(true);
-      alert("Image saved successfully to your gallery!");
-      setImageUrl("");
-      setPrompt("");
-    } catch (err) {
-      console.error("Error saving image:", err);
-      setError("Error saving image to Firestore.");
-    }
+
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+
+    reader.onloadend = async () => {
+      const base64Data = reader.result.split(",")[1];
+      try {
+        const res = await fetch("http://localhost:5000/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: base64Data, userId, prompt }),
+        });
+
+        const data = await res.json();
+        console.log("Saved:", data.url);
+        setSaveSuccess(true);
+        toast.success("Image saved to gallery!");
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to save image.");
+      }
+    };
   };
 
-  const deleteImage = () => {
+  // Delete/reset image
+  const handleDelete = () => {
     setImageUrl("");
-    setPrompt("");
     setSaveSuccess(false);
+    toast("Poster cleared.", { icon: "🗑️" });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white flex items-center justify-center p-6">
-      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl p-8 flex flex-col md:flex-row gap-6">
-        {/* Left side: Text and inputs */}
-        <div className="md:w-1/2 flex flex-col">
-          <h2 className="text-4xl font-bold text-orange-500 mb-6 text-center md:text-left">
-            Advertisement Poster Generator
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-6">
+      <Toaster position="top-right" />
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-5xl flex flex-col md:flex-row gap-8">
+        {/* Left: Prompt Input & Actions */}
+        <div className="flex-1 flex flex-col">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center md:text-left">
+            AI Advertisement Poster Generator
           </h2>
-          <p className="text-gray-600 mb-4 text-center md:text-left">
-            Enter your creative idea and instantly generate stunning advertisement posters.
-          </p>
 
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Type your advertisement prompt here..."
-            className="w-full h-40 p-4 mb-4 border-2 border-gray-300 rounded-xl focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition-all resize-none"
+            placeholder="Describe your poster idea... (e.g. modern milk ad, festival sale, etc.)"
+            className="w-full border rounded-xl p-4 shadow-sm focus:ring-2 focus:ring-blue-500 mb-4"
+            rows={5}
           />
 
-          <button
-            onClick={generateImage}
-            className={`w-full py-3 rounded-xl font-semibold text-white shadow-lg transition transform hover:scale-105 mb-4 ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+          <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+            <button
+              onClick={generateImage}
+              disabled={loading}
+              className={`px-6 py-2 rounded-xl font-semibold shadow-md transition ${
+                loading
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
-            disabled={loading}
-          >
-            {loading ? "Generating..." : "Generate Poster"}
-          </button>
+            >
+              {loading ? "Generating..." : "Generate"}
+            </button>
 
-          {error && <p className="text-red-500 text-center mb-2">{error}</p>}
-        </div>
-
-        {/* Right side: Generated image */}
-        <div className="md:w-1/2 flex flex-col items-center justify-start">
-          {imageUrl ? (
-            <div className="w-full flex flex-col items-center">
-              <img
-                src={imageUrl}
-                alt="Generated Poster"
-                className="w-full max-w-md h-auto rounded-xl shadow-xl mb-4 object-cover"
-              />
-
-              <div className="flex flex-wrap justify-center gap-4 mt-4">
-                {/* Download Button */}
-                <a
-                  href={imageUrl}
-                  download="advertisement_poster.png"
-                  className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v8m0 0l-4-4m4 4l4-4M12 4v8" />
-                  </svg>
-                  Download
-                </a>
-
-                {/* Save Button */}
+            {imageUrl && (
+              <>
                 <button
-                  onClick={saveImageToGallery}
+                  onClick={handleSave}
                   disabled={saveSuccess}
-                  className={`flex items-center gap-2 px-5 py-3 font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105 ${saveSuccess
-                      ? "bg-gray-400 cursor-not-allowed text-white"
-                      : "bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white"
-                    }`}
+                  className={`px-6 py-2 rounded-xl font-semibold shadow-md transition ${
+                    saveSuccess
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-purple-600 hover:bg-purple-700 text-white"
+                  }`}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
                   {saveSuccess ? "Saved" : "Save"}
                 </button>
-
-                {/* Delete Button */}
                 <button
-                  onClick={deleteImage}
-                  className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105"
+                  onClick={handleDelete}
+                  className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md transition"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
                   Delete
                 </button>
-              </div>
-
-            </div>
-          ) : (
-            <div className="text-gray-400 italic mt-8 text-center">
-              Your generated poster will appear here.
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Right: Image Preview */}
+        {imageUrl ? (
+          <div className="flex-1 flex flex-col items-center">
+            <h3 className="text-lg font-semibold mb-3 text-gray-700">
+              Generated Poster
+            </h3>
+            <img
+              src={imageUrl}
+              alt="Generated Poster"
+              className="rounded-xl shadow-lg w-80 h-80 object-cover"
+            />
+            <a
+              href={imageUrl}
+              download="poster.png"
+              className="mt-4 px-5 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl shadow transition"
+            >
+              Download
+            </a>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-gray-400 border-2 border-dashed rounded-xl">
+            <p className="text-center">Your generated poster will appear here</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,22 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import img from "../img/Smart AD Maker.png";
+import { useNavigate } from "react-router-dom";
+
 
 function Navbar({ user, handleSignOut }) {
+  const navigate = useNavigate();
+
   const [isOpen, setIsOpen] = useState(false);
+
+   const signOutAndRedirect = async () => {
+    try {
+      await handleSignOut();  // calls auth.signOut()
+      navigate("/"); // redirect to home after logout
+    } catch (error) {
+      console.error("Sign out failed", error);
+    }
+  };
 
   return (
     <nav className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 p-5 text-white shadow-lg">
@@ -41,7 +54,7 @@ function Navbar({ user, handleSignOut }) {
                 Gallery
               </Link>
               <button
-                onClick={handleSignOut}
+                onClick={signOutAndRedirect}
                 className="bg-red-600 hover:bg-red-700 transition-colors text-white px-4 py-2 rounded-full font-semibold shadow-md"
               >
                 Sign Out
