@@ -55,7 +55,7 @@ function ImageGeneration() {
     reader.onloadend = async () => {
       const base64Data = reader.result.split(",")[1];
       try {
-        const res = await fetch("http://localhost:5000/upload", {
+        const res = await fetch("https://smartadmaker-backend-157053047400.asia-south1.run.app/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ imageBase64: base64Data, userId, prompt }),
