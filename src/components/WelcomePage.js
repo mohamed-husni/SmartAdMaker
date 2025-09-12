@@ -35,45 +35,41 @@ function WelcomePage() {
     fetchUserImages();
   }, [user]);
 
-  // Helper for layout class based on image count
-  const getGridCols = () => {
-    if (images.length === 1) return "grid-cols-1 justify-items-center";
-    if (images.length === 2) return "grid-cols-2";
-    return "grid-cols-3";
-  };
-
- return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-r from-orange-100 to-white px-4 py-8">
-      <div className="max-w-7xl w-full shadow-lg rounded-lg overflow-hidden bg-white flex flex-col md:flex-row items-center">
+  return (
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-r from-orange-100 to-white px-4 py-6">
+      
+      {/* Hero Section */}
+      <div className="w-full max-w-7xl bg-white shadow-lg rounded-lg overflow-hidden flex flex-col lg:flex-row">
+        
         {/* Hero Image */}
-        <div className="md:w-1/2 w-full h-64 md:h-auto">
+        <div className="w-full lg:w-1/2">
           <img
             src={img}
-            alt="Welcome to Text-to-Image Generator"
-            className="w-full h-full object-cover"
+            alt="Welcome to Smart Ad Maker"
+            className="w-full aspect-video object-cover"
           />
         </div>
 
         {/* Text Section */}
-        <div className="md:w-1/2 w-full p-6 md:p-8 flex flex-col justify-center items-start text-center md:text-left space-y-6">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-orange-500 mb-4">
+        <div className="w-full lg:w-1/2 p-6 flex flex-col justify-center items-center lg:items-start text-center lg:text-left space-y-4">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-orange-500">
             Welcome to Smart Ad Maker
           </h1>
-          <p className="text-lg md:text-xl text-gray-700">
+          <p className="text-base md:text-lg text-gray-700">
             Turn your ideas into stunning advertisement posters in seconds.
           </p>
           <Link
             to={user ? "/generate-image" : "/signin"}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-transform transform hover:scale-105"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition hover:scale-105"
           >
             Get Started
           </Link>
         </div>
       </div>
 
-      {/* Recently Created Advertisements Section */}
-      <div className="max-w-7xl w-full mt-10 px-4">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+      {/* Recently Created Advertisements */}
+      <div className="w-full max-w-7xl mt-10 px-2">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">
           Recently Created Advertisements
         </h2>
 
@@ -85,13 +81,13 @@ function WelcomePage() {
           </p>
         ) : (
           <div
-            className={`grid gap-6 ${getGridCols()} max-w-5xl mx-auto cursor-pointer`}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             role="list"
           >
             {images.map((image) => (
               <div
                 key={image.id}
-                className="rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                className="rounded-lg overflow-hidden shadow hover:shadow-xl transition cursor-pointer"
                 onClick={() => navigate("/gallery")}
                 role="listitem"
                 tabIndex={0}
@@ -103,13 +99,17 @@ function WelcomePage() {
                 <img
                   src={image.imageUrl}
                   alt={`Ad generated from: ${image.prompt}`}
-                  className="w-full h-48 object-cover"
+                  className="w-full aspect-video object-cover"
                   loading="lazy"
                 />
                 <div className="p-4 bg-white">
-                  <p className="text-gray-700 font-semibold truncate">{image.prompt}</p>
+                  <p className="text-gray-700 font-semibold truncate">
+                    {image.prompt}
+                  </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    {new Date(image.createdAt).toLocaleDateString()}
+                    {image.createdAt
+                      ? new Date(image.createdAt).toLocaleDateString()
+                      : ""}
                   </p>
                 </div>
               </div>
