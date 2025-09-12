@@ -22,60 +22,60 @@ function Register() {
       });
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md">
-        {/* Title */}
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
-          Create an Account
-        </h2>
-        <p className="text-center text-gray-500 mb-6">
-          Join <span className="font-semibold text-indigo-600">SmartAdMaker</span> and start generating
-          professional ads in seconds.
-        </p>
+return (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-4 sm:p-6">
+    <div className="bg-white shadow-2xl rounded-2xl p-6 sm:p-8 w-full max-w-xs sm:max-w-md md:max-w-lg">
+      {/* Title */}
+      <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-2">
+        Create an Account
+      </h2>
+      <p className="text-center text-gray-500 mb-6 text-sm sm:text-base">
+        Join <span className="font-semibold text-indigo-600">SmartAdMaker</span> and start generating professional ads in seconds.
+      </p>
 
-        {/* Error message */}
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+      {/* Error message */}
+      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-        {/* Form */}
-        <form onSubmit={handleRegister} className="space-y-4">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Create a password"
-            className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 shadow-md transition-all"
-          >
-            Sign Up
-          </button>
-        </form>
+      {/* Form */}
+      <form onSubmit={handleRegister} className="space-y-4">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+          className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full text-sm sm:text-base"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Create a password"
+          className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full text-sm sm:text-base"
+          required
+        />
+        <button
+          type="submit"
+          className="w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 shadow-md transition-all text-sm sm:text-base"
+        >
+          Sign Up
+        </button>
+      </form>
 
-        {/* Extra links */}
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Already have an account?{" "}
-          <Link
-            to="/signin"
-            className="text-indigo-600 font-semibold hover:underline"
-          >
-            Sign In
-          </Link>
-        </p>
-      </div>
+      {/* Extra links */}
+      <p className="text-center text-sm sm:text-base text-gray-600 mt-6">
+        Already have an account?{" "}
+        <Link
+          to="/signin"
+          className="text-indigo-600 font-semibold hover:underline"
+        >
+          Sign In
+        </Link>
+      </p>
     </div>
-  );
+  </div>
+);
+
 }
 
 export default Register;

@@ -42,11 +42,11 @@ function WelcomePage() {
     return "grid-cols-3";
   };
 
-  return (
+ return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-r from-orange-100 to-white px-4 py-8">
       <div className="max-w-7xl w-full shadow-lg rounded-lg overflow-hidden bg-white flex flex-col md:flex-row items-center">
         {/* Hero Image */}
-        <div className="md:w-1/2 w-full">
+        <div className="md:w-1/2 w-full h-64 md:h-auto">
           <img
             src={img}
             alt="Welcome to Text-to-Image Generator"
@@ -55,16 +55,16 @@ function WelcomePage() {
         </div>
 
         {/* Text Section */}
-        <div className="md:w-1/2 w-full p-8 flex flex-col justify-center items-start text-center md:text-left space-y-6">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-orange-500 mb-4 animate-fade-in">
+        <div className="md:w-1/2 w-full p-6 md:p-8 flex flex-col justify-center items-start text-center md:text-left space-y-6">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-orange-500 mb-4">
             Welcome to Smart Ad Maker
           </h1>
-          <p className="text-lg md:text-xl text-gray-700 animate-fade-in delay-200">
+          <p className="text-lg md:text-xl text-gray-700">
             Turn your ideas into stunning advertisement posters in seconds.
           </p>
           <Link
             to={user ? "/generate-image" : "/signin"}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 animate-fade-in delay-400"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-transform transform hover:scale-105"
           >
             Get Started
           </Link>
@@ -73,12 +73,16 @@ function WelcomePage() {
 
       {/* Recently Created Advertisements Section */}
       <div className="max-w-7xl w-full mt-10 px-4">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">Recently Created Advertisements</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+          Recently Created Advertisements
+        </h2>
 
         {loading ? (
           <p className="text-gray-600 text-center">Loading...</p>
         ) : images.length === 0 ? (
-          <p className="text-gray-500 italic text-center">Created posters will appear here.</p>
+          <p className="text-gray-500 italic text-center">
+            Created posters will appear here.
+          </p>
         ) : (
           <div
             className={`grid gap-6 ${getGridCols()} max-w-5xl mx-auto cursor-pointer`}

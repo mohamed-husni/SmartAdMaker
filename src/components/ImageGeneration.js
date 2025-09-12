@@ -89,77 +89,78 @@ function ImageGeneration() {
     setPrompt("");
   };
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-6">
-      <Toaster position="top-right" />
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-3xl flex flex-col gap-6">
-        <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">
-          AI Advertisement Poster Generator
-        </h2>
+return (
+  <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-4 sm:p-6">
+    <Toaster position="top-right" />
+    <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md sm:max-w-lg md:max-w-xl flex flex-col gap-6">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-4 sm:mb-6">
+        AI Advertisement Poster Generator
+      </h2>
 
-        {/* Prompt Input */}
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Describe your poster idea... (e.g. modern milk ad, festival sale, etc.)"
-          className="w-full border rounded-xl p-4 shadow-sm focus:ring-2 focus:ring-blue-500 resize-none mb-4"
-          rows={4}
-          disabled={!!imageUrl} // Disable prompt input when image generated
-        />
+      {/* Prompt Input */}
+      <textarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Describe your poster idea... (e.g. modern milk ad, festival sale, etc.)"
+        className="w-full border rounded-xl p-3 sm:p-4 shadow-sm focus:ring-2 focus:ring-blue-500 resize-none mb-4 text-sm sm:text-base"
+        rows={4}
+        disabled={!!imageUrl} // Disable prompt input when image generated
+      />
 
-        {/* Generate Button - shown only when no image */}
-        {!imageUrl && (
-          <button
-            onClick={generateImage}
-            disabled={loading || !prompt.trim()}
-            className={`px-6 py-3 rounded-xl font-semibold shadow-md w-full transition-colors ${
-              loading
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-          >
-            {loading ? "Generating..." : "Generate Poster"}
-          </button>
-        )}
+      {/* Generate Button - shown only when no image */}
+      {!imageUrl && (
+        <button
+          onClick={generateImage}
+          disabled={loading || !prompt.trim()}
+          className={`px-5 py-3 rounded-xl font-semibold shadow-md w-full transition-colors text-sm sm:text-base ${
+            loading
+              ? "bg-gray-400 text-white cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
+          {loading ? "Generating..." : "Generate Poster"}
+        </button>
+      )}
 
-        {/* Generated Image and Buttons */}
-        {imageUrl && (
-          <div className="flex flex-col items-center gap-5">
-            <img
-              src={imageUrl}
-              alt="Generated Poster"
-              className="rounded-xl shadow-lg w-full max-w-md object-contain"
-            />
-            <div className="flex flex-wrap justify-center gap-4 w-full max-w-md">
-              <button
-                onClick={handleDownload}
-                className="flex-1 px-5 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl shadow-md font-semibold transition-colors"
-              >
-                Download
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex-1 px-5 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl shadow-md font-semibold transition-colors"
-              >
-                Delete
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saveSuccess}
-                className={`flex-1 px-5 py-3 rounded-xl shadow-md font-semibold transition-colors ${
-                  saveSuccess
-                    ? "bg-gray-400 text-white cursor-not-allowed"
-                    : "bg-gray-600 hover:bg-gray-700 text-white"
-                }`}
-              >
-                {saveSuccess ? "Saved" : "Save"}
-              </button>
-            </div>
+      {/* Generated Image and Buttons */}
+      {imageUrl && (
+        <div className="flex flex-col items-center gap-5">
+          <img
+            src={imageUrl}
+            alt="Generated Poster"
+            className="rounded-xl shadow-lg w-full max-w-xs sm:max-w-md object-contain"
+          />
+          <div className="flex flex-wrap justify-center gap-3 w-full max-w-xs sm:max-w-md">
+            <button
+              onClick={handleDownload}
+              className="flex-1 px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl shadow-md font-semibold transition-colors text-sm sm:text-base"
+            >
+              Download
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex-1 px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl shadow-md font-semibold transition-colors text-sm sm:text-base"
+            >
+              Delete
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saveSuccess}
+              className={`flex-1 px-4 py-3 rounded-xl shadow-md font-semibold transition-colors text-sm sm:text-base ${
+                saveSuccess
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-gray-600 hover:bg-gray-700 text-white"
+              }`}
+            >
+              {saveSuccess ? "Saved" : "Save"}
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
 }
 
 export default ImageGeneration;

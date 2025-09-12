@@ -64,19 +64,20 @@ function Gallery() {
       </div>
     );
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-8">
-      <Toaster position="top-right" />
-      <h2 className="text-4xl font-extrabold text-center text-gray-800 mb-10">
-        Your Gallery
-      </h2>
+return (
+  <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 sm:p-8">
+    <Toaster position="top-right" />
+    <h2 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
+      Your Gallery
+    </h2>
 
-      {images.length === 0 ? (
-        <p className="text-center text-gray-600 text-lg">
-          No images yet. Start generating creative posters!
-        </p>
-      ) : (
-        <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    {images.length === 0 ? (
+      <p className="text-center text-gray-600 text-lg">
+        No images yet. Start generating creative posters!
+      </p>
+    ) : (
+      <div className="overflow-x-auto">
+        <div className="container mx-auto grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {images.map((image) => (
             <div
               key={image.id}
@@ -85,7 +86,7 @@ function Gallery() {
               <img
                 src={image.imageUrl}
                 alt={`Generated from prompt: ${image.prompt}`}
-                className="w-full h-64 object-cover"
+                className="w-full h-auto object-cover rounded-t-2xl"
               />
               <div className="p-4 flex flex-col flex-grow justify-between">
                 <div>
@@ -98,7 +99,7 @@ function Gallery() {
                 </div>
 
                 {/* Buttons */}
-                <div className="flex justify-center gap-3 mt-auto">
+                <div className="flex flex-wrap justify-center gap-3 mt-auto">
                   <a
                     href={image.imageUrl}
                     download="advertisement_poster.png"
@@ -117,9 +118,11 @@ function Gallery() {
             </div>
           ))}
         </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </div>
+);
+
 }
 
 export default Gallery;
