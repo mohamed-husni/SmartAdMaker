@@ -17,32 +17,32 @@ function Navbar({ user, handleSignOut }) {
 
   return (
     <nav className="bg-gray-900 text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 flex items-center justify-between h-16">
         {/* Logo */}
         <div className="flex items-center space-x-3">
-          <img src={img} alt="Logo" className="h-10 w-10 rounded-full" />
-          <h1 className="text-lg sm:text-xl font-bold text-yellow-400">
+          <img src={img} alt="Logo" className="h-8 w-8 sm:h-10 sm:w-10 rounded-full" />
+          <h1 className="text-base sm:text-lg font-bold text-yellow-400 select-none">
             SmartAdMaker
           </h1>
         </div>
 
         {/* Desktop menu */}
-        <div className="hidden md:flex space-x-6 items-center">
-          <Link to="/" className="hover:text-yellow-300">
+        <div className="hidden md:flex space-x-4 lg:space-x-6 items-center text-sm sm:text-base">
+          <Link to="/" className="hover:text-yellow-300 px-2 py-1 rounded">
             Home
           </Link>
 
           {user ? (
             <>
-              <Link to="/generate-image" className="hover:text-yellow-300">
+              <Link to="/generate-image" className="hover:text-yellow-300 px-2 py-1 rounded">
                 Generate Poster
               </Link>
-              <Link to="/gallery" className="hover:text-yellow-300">
+              <Link to="/gallery" className="hover:text-yellow-300 px-2 py-1 rounded">
                 Gallery
               </Link>
               <button
                 onClick={signOutAndRedirect}
-                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full"
+                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-full transition"
               >
                 Sign Out
               </button>
@@ -51,13 +51,13 @@ function Navbar({ user, handleSignOut }) {
             <>
               <Link
                 to="/signin"
-                className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-full"
+                className="bg-green-500 hover:bg-green-600 px-3 py-1 rounded-full transition"
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-full"
+                className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-full transition"
               >
                 Register
               </Link>
@@ -68,13 +68,16 @@ function Navbar({ user, handleSignOut }) {
         {/* Mobile menu button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 rounded hover:bg-gray-700"
+          className="md:hidden p-2 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          aria-label="Menu"
+          aria-expanded={isOpen}
         >
           <svg
             className="w-6 h-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -82,8 +85,8 @@ function Navbar({ user, handleSignOut }) {
               strokeWidth={2}
               d={
                 isOpen
-                  ? "M6 18L18 6M6 6l12 12" // close
-                  : "M4 6h16M4 12h16M4 18h16" // hamburger
+                  ? "M6 18L18 6M6 6l12 12" // close icon
+                  : "M4 6h16M4 12h16M4 18h16" // hamburger icon
               }
             />
           </svg>
@@ -92,7 +95,7 @@ function Navbar({ user, handleSignOut }) {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-gray-800 px-4 pb-4 space-y-2">
+        <div className="md:hidden bg-gray-800 px-4 pb-4 space-y-2 shadow-md">
           <Link
             to="/"
             className="block py-2 hover:bg-gray-700 rounded"
@@ -122,7 +125,7 @@ function Navbar({ user, handleSignOut }) {
                   signOutAndRedirect();
                   setIsOpen(false);
                 }}
-                className="block w-full text-left py-2 bg-red-600 hover:bg-red-700 rounded"
+                className="block w-full text-left py-2 bg-red-600 hover:bg-red-700 rounded transition"
               >
                 Sign Out
               </button>

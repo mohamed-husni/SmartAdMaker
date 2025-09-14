@@ -38,7 +38,7 @@ function App() {
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/gellery" element={<Gallery />} />
+        <Route path="/gallery" element={<Gallery />} />
         <Route path="/prompt" element={<Prompt />} />
  <Route path="/generate-image" element={<ImageGeneration />} />
         <Route path="/signin" element={<SignIn />} /> 
