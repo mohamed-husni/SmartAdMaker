@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import img from "../img/gif3.gif";
+import img from "../img/best-advertisement.webp";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebaseConfig";
@@ -35,89 +35,81 @@ function WelcomePage() {
     fetchUserImages();
   }, [user]);
 
- return (
-  <div className="min-h-screen flex flex-col items-center bg-gradient-to-r from-orange-100 to-white px-2 sm:px-4 md:px-6 py-6">
-    {/* Hero Section */}
-    <div className="w-full max-w-7xl bg-white shadow-lg rounded-lg overflow-hidden flex flex-col lg:flex-row">
-      {/* Hero Image */}
-      <div className="w-full lg:w-1/2">
-        <img
-          src={img}
-          alt="Welcome to Smart Ad Maker"
-          className="w-full aspect-video object-cover"
-        />
-      </div>
-
-      {/* Text Section */}
-      <div className="w-full lg:w-1/2 p-4 sm:p-6 md:p-8 flex flex-col justify-center items-center lg:items-start text-center lg:text-left space-y-4">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-orange-500">
-          Welcome to Smart Ad Maker
-        </h1>
-        <p className="text-base sm:text-lg md:text-xl text-gray-700 max-w-md">
-          Turn your ideas into stunning advertisement posters in seconds.
-        </p>
-        <Link
-          to={user ? "/generate-image" : "/signin"}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition transform hover:scale-105"
-        >
-          Get Started
-        </Link>
-      </div>
-    </div>
-
-    {/* Recently Created Advertisements */}
-    <div className="w-full max-w-7xl mt-10 px-2 sm:px-4">
-      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">
-        Recently Created Advertisements
-      </h2>
-
-      {loading ? (
-        <p className="text-gray-600 text-center">Loading...</p>
-      ) : images.length === 0 ? (
-        <p className="text-gray-500 italic text-center">
-          Created posters will appear here.
-        </p>
-      ) : (
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          role="list"
-        >
-          {images.map((image) => (
-            <div
-              key={image.id}
-              className="rounded-lg overflow-hidden shadow hover:shadow-xl transition cursor-pointer flex flex-col"
-              onClick={() => navigate("/gallery")}
-              role="listitem"
-              tabIndex={0}
-              aria-label={`Advertisement created from prompt: ${image.prompt}`}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") navigate("/gallery");
-              }}
-            >
-              <img
-                src={image.imageUrl}
-                alt={`Ad generated from: ${image.prompt}`}
-                className="w-full aspect-video object-cover"
-                loading="lazy"
-              />
-              <div className="p-4 bg-white flex flex-col flex-grow">
-                <p className="text-gray-700 font-semibold truncate">
-                  {image.prompt}
-                </p>
-                <p className="text-xs text-gray-400 mt-auto">
-                  {image.createdAt
-                    ? new Date(image.createdAt).toLocaleDateString()
-                    : ""}
-                </p>
-              </div>
-            </div>
-          ))}
+  return (
+    <main className="min-h-screen bg-gradient-to-r from-gray-50 via-white to-gray-50 px-6 py-12 flex flex-col items-center">
+      <section className="max-w-7xl w-full flex flex-col-reverse lg:flex-row items-center lg:items-start gap-12 lg:gap-20">
+        {/* Text */}
+        <div className="flex-1 max-w-xl text-center lg:text-left">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight mb-4">
+            Welcome to <span className="text-orange-500">Smart Ad Maker</span>
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-700 mb-8">
+            Transform your ideas into stunning advertisement posters in seconds — no design skills required.
+          </p>
+          <Link
+            to={user ? "/generate-image" : "/signin"}
+            className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full px-8 py-3 shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-orange-300"
+            aria-label="Get started with Smart Ad Maker"
+          >
+            Get Started
+          </Link>
         </div>
-      )}
-    </div>
-  </div>
-);
 
+        {/* Hero Image */}
+        <div className="flex-1 max-w-lg drop-shadow-lg rounded-lg overflow-hidden">
+          <img
+            src={img}
+            alt="Welcome to Smart Ad Maker"
+            className="w-full h-auto object-cover rounded-lg"
+            loading="eager"
+          />
+        </div>
+      </section>
+
+      {/* Recently Created Advertisements */}
+      <section className="max-w-7xl w-full mt-16">
+        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Recently Created Advertisements</h2>
+
+        {loading ? (
+          <p className="text-gray-600 text-center">Loading...</p>
+        ) : images.length === 0 ? (
+          <p className="text-gray-500 italic text-center">Created posters will appear here.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {images.map((image) => (
+              <div
+                key={image.id}
+                className="group rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition cursor-pointer flex flex-col overflow-hidden"
+                onClick={() => navigate("/gallery")}
+                role="listitem"
+                tabIndex={0}
+                aria-label={`Advertisement created from prompt: ${image.prompt}`}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") navigate("/gallery");
+                }}
+              >
+                <img
+                  src={image.imageUrl}
+                  alt={`Ad generated from: ${image.prompt}`}
+                  className="w-full h-48 object-cover transition-transform group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="p-4 flex flex-col flex-grow">
+                  <p className="text-gray-800 font-semibold line-clamp-2">{image.prompt}</p>
+                  <time
+                    className="text-xs text-gray-400 mt-auto"
+                    dateTime={image.createdAt ? new Date(image.createdAt).toISOString() : undefined}
+                  >
+                    {image.createdAt ? new Date(image.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : ""}
+                  </time>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  );
 }
 
 export default WelcomePage;

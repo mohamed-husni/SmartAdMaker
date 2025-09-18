@@ -14,7 +14,7 @@ function Register() {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log("User registered:", userCredential.user);
-        navigate("/generate-image"); // redirect directly to generator
+        navigate("/"); // redirect directly to gen
       })
       .catch((error) => {
         console.error("Error registering:", error.message);

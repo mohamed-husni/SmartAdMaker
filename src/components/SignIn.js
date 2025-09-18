@@ -14,8 +14,8 @@ function SignIn() {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log("User signed in:", userCredential.user);
-        navigate("/generate-image"); // take them straight to generator
-      })
+        navigate("/"); 
+        })
       .catch((error) => {
         console.error("Error signing in:", error.message);
         setError("Invalid email or password. Please try again.");
